@@ -45,7 +45,7 @@ export class UserController {
         return this.userService.addChild(parentId,userId)
     }
 
-    @Post('/updateRole/:userId')
+    @Post('/update-role/:userId')
     async updateRole(
         @Param('userId') userId: number,
         @Body('parentId') parentId: number,
@@ -54,8 +54,18 @@ export class UserController {
         return await this.userService.updateRole(newRole, userId, parentId);
     }
 
-    @Get('/allChildren/:parentId')
+    @Get('/all-children/:parentId')
     async getAllChildren (@Param('parentId') parentId: number){
         return await this.userService.getAllChildren(parentId)
+    }
+
+    @Post('/remove-position/:userId')
+    async removePosition(@Param('userId') userId:number) {
+        return this.userService.removeUser(userId)
+    }
+
+    @Post('/remove-user/:userId')
+    async removeUser(@Param('userId') userId:number) {
+        return this.userService.removeUserWithChildren(userId)
     }
 }

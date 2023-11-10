@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { User } from 'src/entities/user.entity';
@@ -26,7 +26,7 @@ export class UserService {
         newUser.role = addUserDto.role;
         // newUser.children = [];
 
-        // if(!parentUser)
+        // if(!addUserDto.role == 'CEO')
         //     throw new NotFoundException("Parent Not Found")
 
         const parentUser = await this.userRepository.findOne({ where: { id: addUserDto.parent || 0 } })
@@ -94,6 +94,9 @@ export class UserService {
         const user = await this.userRepository.findOneBy({id: userId})
         const parent = await this.userRepository.findOneBy({id: parentId})
 
+        if(user.role == "CEO")
+            throw new ForbiddenException()
+
         if(!user || !parent)
             throw new NotFoundException()
 
@@ -104,14 +107,18 @@ export class UserService {
         return user;
     }
 
-    async getAllChildren(userId: number): Promise<any> {
+    async getAllChildren(userId: number): Promise<any> { // Promise<object | []>
+        
         // const user = this.userRepository.findOneBy({id: userId})
-        const queryBuilder = this.userRepository
+    const user = await this.userRepository
         .createQueryBuilder('user')
         .leftJoinAndSelect('user.children', 'children')
-        .where('user.id = :userId', { userId });
-    
-      const user = await queryBuilder.getOne();
+        .where('user.id = :userId', { userId })
+        .getOne()
+        
+    // const user = await queryBuilder.getOne();
+        console.log(user.children);
+
     
       if (user?.children) {
         await Promise.all(
@@ -120,8 +127,56 @@ export class UserService {
           })
         );
       }
-
+      console.log(typeof(user));
+      
       return user;
 
+    }
+
+    async removeUser(userId: number): Promise<any> {
+        const user = await this.userRepository
+            .createQueryBuilder('user')
+            .leftJoinAndSelect('user.children', 'children')
+            .where('user.id = :userId', {userId})
+            .getOne()
+        
+        user.parent = null;
+        this.userRepository.save(user)
+
+        user.children.map(async child => {
+            child.parent = null
+            this.userRepository.save(child)
+            // const orphanedChild = await this.userRepository
+            //     .createQueryBuilder('user')
+            //     .leftJoinAndSelect('user.parent', 'parent')
+            //     .where('user.id = :childId', {childId: child.id})
+            //     .getOne();
+
+            // console.log({orphanedChild});
+            
+            // orphanedChild.parent = null;
+            // console.log({orphanedChild});
+            // const hell = await this.userRepository.save(orphanedChild)
+            // console.log({hell});        
+        })
+
+        
+        return user
+    }
+
+    async removeUserWithChildren(userId: number): Promise<any> {
+        const user = await this.userRepository
+            .createQueryBuilder('user')
+            .leftJoinAndSelect('user.children', 'children')
+            .where('user.id = :userId', {userId})
+            .getOne()
+
+        if(user?.children)
+            await Promise.all(
+                user.children.map(async child => {
+                    await this.removeUserWithChildren(child.id)
+                })
+            )
+          return await this.userRepository.remove(user)
     }
 }
