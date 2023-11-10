@@ -1,13 +1,13 @@
 import { Exclude } from 'class-transformer';
 import {Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne} from 'typeorm';
 
-enum UserRole {
-    CEO = 'CEO',
-    CTO = 'CTO',
-    CFO = 'CFO',
-    Dev = 'Dev',
-    Fin = 'Fin',
-  }
+// enum UserRole {
+//     CEO = 'CEO',
+//     CTO = 'CTO',
+//     CFO = 'CFO',
+//     Dev = 'Dev',
+//     Fin = 'Fin',
+//   }
 
 @Entity()
 export class User {
@@ -20,11 +20,13 @@ export class User {
     @Column()
     email: string;
 
-    @Column({
-        type: 'enum',
-        enum: UserRole
-    })
-    role: UserRole;
+    @Column(
+    // {
+    //     type: 'enum',
+    //     enum: UserRole
+    // }
+    )
+    role: string;
 
     @Exclude()
     @ManyToOne(() => User, user => user.children, {nullable: true})

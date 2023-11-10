@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { User } from 'src/entities/user.entity';
@@ -63,7 +63,7 @@ export class UserService {
             .getOne();
     }
 
-    async addChild(parentId: number, userId: number): Promise<User|false> {
+    async addChild(parentId: number, userId: number): Promise<User|boolean> {
         const user = await this.userRepository.findOneBy({id:userId})
         const parent = await this.userRepository.findOneBy({id:parentId})
         if(user.parent)
@@ -75,7 +75,7 @@ export class UserService {
         return user;
     }
 
-    async addParent(parentId: number, userId: number): Promise<User|false> {
+    async addParent(parentId: number, userId: number): Promise<User|boolean> {
         const user = await this.userRepository.findOneBy({id:userId})
         const parent = await this.userRepository.findOneBy({id:parentId})
   
@@ -89,4 +89,20 @@ export class UserService {
 
         return user;
     }
+
+    async updateRole(newRole: string, userId: number, parentId: number): Promise<User|boolean> {
+        const user = await this.userRepository.findOneBy({id: userId})
+        const parent = await this.userRepository.findOneBy({id: parentId})
+
+        if(!user || !parent)
+            throw new NotFoundException()
+
+        user.parent = parent;
+        user.role = newRole;
+        
+        await this.userRepository.save(user)
+        return user;
+    }
+
+    
 }

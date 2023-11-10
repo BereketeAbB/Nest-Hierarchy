@@ -44,4 +44,13 @@ export class UserController {
     async addChild(@Param('userId') userId: number, @Param('parentId') parentId: number){
         return this.userService.addChild(parentId,userId)
     }
+
+    @Post('/updateRole/:userId')
+    async updateRole(
+        @Param('userId') userId: number,
+        @Body('parentId') parentId: number,
+        @Body('newRole') newRole: string,
+    ){
+        return this.userService.updateRole(newRole, userId, parentId);
+    }
 }

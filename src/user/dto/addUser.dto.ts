@@ -1,13 +1,5 @@
 import { IsNotEmpty, IsOptional, IsArray, IsEmail} from "class-validator";
 
-enum UserRole {
-    CEO = 'CEO',
-    CTO = 'CTO',
-    CFO = 'CFO',
-    Dev = 'Dev',
-    Fin = 'Fin',
-  }
-
 export class AddUserDto {
     @IsNotEmpty()
     @IsEmail()
@@ -17,7 +9,7 @@ export class AddUserDto {
     full_name: string;
 
     @IsNotEmpty()
-    role: UserRole;
+    role: string;
 
     @IsNotEmpty() // I can't make this optional
     parent: number; // parent's id
