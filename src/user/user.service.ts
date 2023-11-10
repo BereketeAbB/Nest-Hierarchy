@@ -63,7 +63,7 @@ export class UserService {
             .getOne();
     }
 
-    async addChildren(parentId: number, userId: number): Promise<User|false> {
+    async addChild(parentId: number, userId: number): Promise<User|false> {
         const user = await this.userRepository.findOneBy({id:userId})
         const parent = await this.userRepository.findOneBy({id:parentId})
         if(user.parent)

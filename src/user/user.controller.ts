@@ -41,7 +41,7 @@ export class UserController {
     }
 
     @Post('child/:userId/:parentId')
-    async addChildren(@Param('userId') userId: number, @Param('parentId') parentId: number){
-        return this.userService.addChildren(parentId,userId)
+    async addChild(@Param('userId') userId: number, @Param('parentId') parentId: number){
+        return this.userService.addChild(parentId,userId)
     }
 }
