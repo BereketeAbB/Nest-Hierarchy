@@ -15,7 +15,7 @@ import { User } from './entities/user.entity';
       port: 5432,
       username: 'postgres',
       password: 'root',
-      database: 'hierarchy',
+      database: 'orga-structure',
       // entities: [__dirname + '/**/*.entity{.ts, .js}'],
       entities: [User],
       logging: true,
