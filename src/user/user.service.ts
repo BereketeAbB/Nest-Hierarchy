@@ -104,5 +104,24 @@ export class UserService {
         return user;
     }
 
+    async getAllChildren(userId: number): Promise<any> {
+        // const user = this.userRepository.findOneBy({id: userId})
+        const queryBuilder = this.userRepository
+        .createQueryBuilder('user')
+        .leftJoinAndSelect('user.children', 'children')
+        .where('user.id = :userId', { userId });
     
+      const user = await queryBuilder.getOne();
+    
+      if (user?.children) {
+        await Promise.all(
+          user.children.map(async (child) => {
+            child.children = await this.getAllChildren(child.id);
+          })
+        );
+      }
+
+      return user;
+
+    }
 }

@@ -51,6 +51,11 @@ export class UserController {
         @Body('parentId') parentId: number,
         @Body('newRole') newRole: string,
     ){
-        return this.userService.updateRole(newRole, userId, parentId);
+        return await this.userService.updateRole(newRole, userId, parentId);
+    }
+
+    @Get('/allChildren/:parentId')
+    async getAllChildren (@Param('parentId') parentId: number){
+        return await this.userService.getAllChildren(parentId)
     }
 }
