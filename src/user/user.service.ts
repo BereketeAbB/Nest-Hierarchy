@@ -62,4 +62,31 @@ export class UserService {
             .where('user.id = :parentId', { parentId })
             .getOne();
     }
+
+    async addChildren(parentId: number, userId: number): Promise<User|false> {
+        const user = await this.userRepository.findOneBy({id:userId})
+        const parent = await this.userRepository.findOneBy({id:parentId})
+        if(user.parent)
+            return false
+
+        user.parent = parent;
+        this.userRepository.save(user)
+
+        return user;
+    }
+
+    async addParent(parentId: number, userId: number): Promise<User|false> {
+        const user = await this.userRepository.findOneBy({id:userId})
+        const parent = await this.userRepository.findOneBy({id:parentId})
+  
+        
+        if(user.parent)
+            return false
+
+        user.parent = parent
+        this.userRepository.save(user)
+
+
+        return user;
+    }
 }

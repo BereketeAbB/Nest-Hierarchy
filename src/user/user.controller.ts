@@ -35,4 +35,13 @@ export class UserController {
         return this.userService.getParent(childId)
     }
     
+    @Post('parent/:userId/:parentId')
+    async addParent(@Param('userId') userId: number, @Param('parentId') parentId: number){
+        return this.userService.addParent(parentId,userId)
+    }
+
+    @Post('child/:userId/:parentId')
+    async addChildren(@Param('userId') userId: number, @Param('parentId') parentId: number){
+        return this.userService.addChildren(parentId,userId)
+    }
 }
