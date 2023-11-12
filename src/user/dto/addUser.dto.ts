@@ -11,7 +11,7 @@ export class AddUserDto {
     @IsNotEmpty()
     role: string;
 
-    @IsNotEmpty() // I can't make this optional
+    @IsNotEmpty() 
     parent: number; // parent's id
 
     @IsOptional()

@@ -1,14 +1,6 @@
 import { Exclude } from 'class-transformer';
 import {Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne} from 'typeorm';
 
-// enum UserRole {
-//     CEO = 'CEO',
-//     CTO = 'CTO',
-//     CFO = 'CFO',
-//     Dev = 'Dev',
-//     Fin = 'Fin',
-//   }
-
 @Entity()
 export class User {
     @PrimaryGeneratedColumn()
@@ -20,12 +12,7 @@ export class User {
     @Column()
     email: string;
 
-    @Column(
-    // {
-    //     type: 'enum',
-    //     enum: UserRole
-    // }
-    )
+    @Column()
     role: string;
 
     @Exclude()
@@ -37,5 +24,11 @@ export class User {
     // children: number[];
     children: User[];
 
+    constructor(email: string,  full_name: string,  role: string,  parent: User){
+        this.email = email
+        this.full_name = full_name
+        this.role = role
+        this.parent = parent
+    }
     
 }

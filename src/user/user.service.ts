@@ -20,29 +20,14 @@ export class UserService {
     }
 
     async addUser(addUserDto: AddUserDto) {
-        const newUser = new User();
-        newUser.email = addUserDto.email;
-        newUser.full_name = addUserDto.full_name;
-        newUser.role = addUserDto.role;
-        // newUser.children = [];
+        const parentUser = await this.userRepository.findOneBy( { id: addUserDto.parent || 0 })
+        
+        if(!parentUser)
+            throw new NotFoundException()
 
-        // if(!addUserDto.role == 'CEO')
-        //     throw new NotFoundException("Parent Not Found")
-
-        const parentUser = await this.userRepository.findOne({ where: { id: addUserDto.parent || 0 } })
-        newUser.parent = parentUser ? parentUser : undefined;
+        const newUser = new User(addUserDto.email, addUserDto.full_name, addUserDto.role, parentUser);
 
         const addedUser = await this.userRepository.save(newUser);
-
-        console.log({ newUser, addedUser, parentUser, addUserDto });
-        // if(parentUser){
-        //     // newUser.parent = parentUser
-        //     if(!parentUser.children)
-        //         parentUser.children = []
-
-        //     parentUser.children.push(addedUser)
-        //     await this.userRepository.save(parentUser)
-        // }
 
         return addedUser
     }
@@ -78,14 +63,12 @@ export class UserService {
     async addParent(parentId: number, userId: number): Promise<User|boolean> {
         const user = await this.userRepository.findOneBy({id:userId})
         const parent = await this.userRepository.findOneBy({id:parentId})
-  
         
         if(user.parent)
             return false
 
         user.parent = parent
         this.userRepository.save(user)
-
 
         return user;
     }
@@ -108,29 +91,20 @@ export class UserService {
     }
 
     async getAllChildren(userId: number): Promise<any> { // Promise<object | []>
-        
-        // const user = this.userRepository.findOneBy({id: userId})
-    const user = await this.userRepository
-        .createQueryBuilder('user')
-        .leftJoinAndSelect('user.children', 'children')
-        .where('user.id = :userId', { userId })
-        .getOne()
-        
-    // const user = await queryBuilder.getOne();
-        console.log(user.children);
-
+        const user = await this.userRepository
+            .createQueryBuilder('user')
+            .leftJoinAndSelect('user.children', 'children')
+            .where('user.id = :userId', { userId })
+            .getOne()
     
-      if (user?.children) {
+        if (user?.children) {
         await Promise.all(
           user.children.map(async (child) => {
             child.children = await this.getAllChildren(child.id);
           })
         );
       }
-      console.log(typeof(user));
-      
       return user;
-
     }
 
     async removeUser(userId: number): Promise<any> {
@@ -145,22 +119,8 @@ export class UserService {
 
         user.children.map(async child => {
             child.parent = null
-            this.userRepository.save(child)
-            // const orphanedChild = await this.userRepository
-            //     .createQueryBuilder('user')
-            //     .leftJoinAndSelect('user.parent', 'parent')
-            //     .where('user.id = :childId', {childId: child.id})
-            //     .getOne();
-
-            // console.log({orphanedChild});
-            
-            // orphanedChild.parent = null;
-            // console.log({orphanedChild});
-            // const hell = await this.userRepository.save(orphanedChild)
-            // console.log({hell});        
-        })
-
-        
+            this.userRepository.save(child)       
+        })        
         return user
     }
 
@@ -177,6 +137,6 @@ export class UserService {
                     await this.removeUserWithChildren(child.id)
                 })
             )
-          return await this.userRepository.remove(user)
+        return await this.userRepository.remove(user)
     }
 }
