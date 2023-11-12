@@ -2,14 +2,16 @@ import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { AddUserDto } from './dto/addUser.dto';
 import { UserService } from './user.service';
 
-
 @Controller('api/user')
 export class UserController {
     constructor(
         private readonly userService: UserService
-    ){}
+        ){}
 
-
+    @Post('ceo')
+    addCEO(@Body() addUserDto: AddUserDto){
+        return this.userService.addCEO(addUserDto)
+    }
     @Post('')
     addUser(@Body() addUserDto: AddUserDto){
         return this.userService.addUser(addUserDto)
@@ -23,45 +25,6 @@ export class UserController {
     @Get('/:id')
     async getUser(@Param('id') userId: number){
         return this.userService.getUser(userId)
-    }
-
-    @Get('/:id/child')
-    async getChildren(@Param('id') parentId: number) {
-        return this.userService.getChildren(parentId)
-    }
-
-    @Get('/:id/parent')
-    async getParent(@Param('id') childId: number) {
-        return this.userService.getParent(childId)
-    }
-    
-    @Post('parent/:userId/:parentId')
-    async addParent(@Param('userId') userId: number, @Param('parentId') parentId: number){
-        return this.userService.addParent(parentId,userId)
-    }
-
-    @Post('child/:userId/:parentId')
-    async addChild(@Param('userId') userId: number, @Param('parentId') parentId: number){
-        return this.userService.addChild(parentId,userId)
-    }
-
-    @Post('/update-role/:userId')
-    async updateRole(
-        @Param('userId') userId: number,
-        @Body('parentId') parentId: number,
-        @Body('newRole') newRole: string,
-    ){
-        return await this.userService.updateRole(newRole, userId, parentId);
-    }
-
-    @Get('/all-children/:parentId')
-    async getAllChildren (@Param('parentId') parentId: number){
-        return await this.userService.getAllChildren(parentId)
-    }
-
-    @Post('/remove-position/:userId')
-    async removePosition(@Param('userId') userId:number) {
-        return this.userService.removeUser(userId)
     }
 
     @Post('/remove-user/:userId')

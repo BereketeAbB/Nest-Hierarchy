@@ -32,97 +32,17 @@ export class UserService {
         return addedUser
     }
 
-    async getParent(childId: number): Promise<User | undefined> {
-        return await this.userRepository
-            .createQueryBuilder('user')
-            .leftJoinAndSelect('user.parent', 'parent')
-            .where('user.id = :childId', {childId})
-            .getOne()
-    }
-
-    async getChildren(parentId: number): Promise<User> {
-        return await this.userRepository
-            .createQueryBuilder('user')
-            .leftJoinAndSelect('user.children', 'children')
-            .where('user.id = :parentId', { parentId })
-            .getOne();
-    }
-
-    async addChild(parentId: number, userId: number): Promise<User|boolean> {
-        const user = await this.userRepository.findOneBy({id:userId})
-        const parent = await this.userRepository.findOneBy({id:parentId})
-        if(user.parent)
-            return false
-
-        user.parent = parent;
-        this.userRepository.save(user)
-
-        return user;
-    }
-
-    async addParent(parentId: number, userId: number): Promise<User|boolean> {
-        const user = await this.userRepository.findOneBy({id:userId})
-        const parent = await this.userRepository.findOneBy({id:parentId})
-        
-        if(user.parent)
-            return false
-
-        user.parent = parent
-        this.userRepository.save(user)
-
-        return user;
-    }
-
-    async updateRole(newRole: string, userId: number, parentId: number): Promise<User|boolean> {
-        const user = await this.userRepository.findOneBy({id: userId})
-        const parent = await this.userRepository.findOneBy({id: parentId})
-
-        if(user.role == "CEO")
+    async addCEO(addUserDto: AddUserDto) {
+        if(addUserDto.role != "CEO")
             throw new ForbiddenException()
-
-        if(!user || !parent)
-            throw new NotFoundException()
-
-        user.parent = parent;
-        user.role = newRole;
         
-        await this.userRepository.save(user)
-        return user;
+        const newUser = new User(addUserDto.email, addUserDto.full_name, addUserDto.role, null);
+
+        const addedUser = await this.userRepository.save(newUser);
+
+        return addedUser
     }
 
-    async getAllChildren(userId: number): Promise<any> { // Promise<object | []>
-        const user = await this.userRepository
-            .createQueryBuilder('user')
-            .leftJoinAndSelect('user.children', 'children')
-            .where('user.id = :userId', { userId })
-            .getOne()
-    
-        if (user?.children) {
-        await Promise.all(
-          user.children.map(async (child) => {
-            child.children = await this.getAllChildren(child.id);
-          })
-        );
-      }
-      return user;
-    }
-
-    async removeUser(userId: number): Promise<any> {
-        const user = await this.userRepository
-            .createQueryBuilder('user')
-            .leftJoinAndSelect('user.children', 'children')
-            .where('user.id = :userId', {userId})
-            .getOne()
-        
-        user.parent = null;
-        this.userRepository.save(user)
-
-        user.children.map(async child => {
-            child.parent = null
-            this.userRepository.save(child)       
-        })        
-        return user
-    }
 
     async removeUserWithChildren(userId: number): Promise<any> {
         const user = await this.userRepository
