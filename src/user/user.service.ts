@@ -16,7 +16,7 @@ export class UserService {
     }
 
     getUser(userId: number): Promise<User | undefined> {
-        return this.userRepository.findOne({ where: { id: userId } });
+        return this.userRepository.findOneBy({ id: userId });
     }
 
     async addUser(addUserDto: AddUserDto) {
