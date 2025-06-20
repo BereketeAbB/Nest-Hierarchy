@@ -1,6 +1,6 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/entities/user.entity';
+import { User } from '../../src/entities/user.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -38,7 +38,7 @@ export class UserRoleService {
     async addParent(parentId: number, userId: number): Promise<User|boolean> {
         const user = await this.userRepository.findOneBy({id:userId})
         const parent = await this.userRepository.findOneBy({id:parentId})
-        
+
         if(user.parent)
             return false
 
@@ -54,7 +54,7 @@ export class UserRoleService {
             .leftJoinAndSelect('user.children', 'children')
             .where('user.id = :userId', { userId })
             .getOne()
-    
+
         if (user?.children) {
         await Promise.all(
           user.children.map(async (child) => {
@@ -71,17 +71,17 @@ export class UserRoleService {
             .leftJoinAndSelect('user.children', 'children')
             .where('user.id = :userId', {userId})
             .getOne()
-        
+
         if(!user)
             throw new NotFoundException()
-        
+
         user.parent = null;
         this.userRepository.save(user)
 
         user.children.map(async child => {
             child.parent = null
-            this.userRepository.save(child)       
-        })        
+            this.userRepository.save(child)
+        })
         return user
     }
 
@@ -97,7 +97,7 @@ export class UserRoleService {
 
         user.parent = parent;
         user.role = newRole;
-        
+
         await this.userRepository.save(user)
         return user;
     }

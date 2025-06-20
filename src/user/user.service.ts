@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import { User } from 'src/entities/user.entity';
+import { User } from '../../src/entities/user.entity';
 import { AddUserDto } from './dto/addUser.dto';
 
 @Injectable()
@@ -21,7 +21,7 @@ export class UserService {
 
     async addUser(addUserDto: AddUserDto) {
         const parentUser = await this.userRepository.findOneBy( { id: addUserDto.parent || 0 })
-        
+
         if(!parentUser)
             throw new NotFoundException()
 
@@ -35,7 +35,7 @@ export class UserService {
     async addCEO(addUserDto: AddUserDto) {
         if(addUserDto.role != "CEO")
             throw new ForbiddenException()
-        
+
         const newUser = new User(addUserDto.email, addUserDto.full_name, addUserDto.role, null);
 
         const addedUser = await this.userRepository.save(newUser);
