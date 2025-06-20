@@ -89,11 +89,11 @@ export class UserRoleService {
         const user = await this.userRepository.findOneBy({id: userId})
         const parent = await this.userRepository.findOneBy({id: parentId})
 
-        if(user.role == "CEO")
-            throw new ForbiddenException()
-
         if(!user || !parent)
             throw new NotFoundException()
+
+        if(user.role == "CEO")
+            throw new ForbiddenException()
 
         user.parent = parent;
         user.role = newRole;
