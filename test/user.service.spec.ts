@@ -51,12 +51,13 @@ describe('UserService', () => {
 
   it('addUser should save and return new user if parent exists', async () => {
     const parentUser = { id: 1 };
-    const newUser = { id: 2, email: 'b@b.com' };
+    const newUser = { id: 2, email: 'b@b.com', parentId: 1 };
     userRepository.findOneBy.mockResolvedValue(parentUser);
     userRepository.save.mockResolvedValue(newUser);
 
     const result = await service.addUser({ email: 'b@b.com', full_name: 'B', role: 'Staff', parent: 1 });
     expect(result).toEqual(newUser);
+    expect(result).toHaveProperty("parentId", 1)
   });
 
   it('addCEO should throw ForbiddenException if role is not CEO', async () => {
